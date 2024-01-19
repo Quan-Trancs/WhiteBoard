@@ -1,5 +1,7 @@
 <template>
-    <div ref="container" class="h-screen w-screen bg-wall">
+    <div ref="container" 
+    @mouseup="handleMouseUp"
+    class="h-screen w-screen bg-wall">
         <input type="text" v-model="inputValue" @input="handleInput" />
         <div ref="boardContainer" class="flex h-[540px] w-[1200px] justify-center items-center">
             <Board :color="color" :size="size" :shape="shape"/>
@@ -32,7 +34,7 @@
 
 <script setup>
 import {ref} from 'vue';
-import { useToolStore } from '../stores/store.ts';
+import { useToolStore, useBoardStore } from '../stores/store.ts';
 
 const inputValue = ref('');
 
@@ -42,6 +44,7 @@ const handleInput = () => {
 };
 
 const toolStore = useToolStore();
+const boardStore = useBoardStore();
 
 const color = ref('#000000');
 const shape = ref('pencil');
@@ -58,6 +61,10 @@ function setShape() {
 
 function setSize() {
     toolStore.setSize(size.value);
+}
+
+function handleMouseUp() {
+    boardStore.setDrawing(false);
 }
 
 </script>

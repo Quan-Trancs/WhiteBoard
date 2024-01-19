@@ -23,4 +23,16 @@ export const useToolStore = defineStore({
     }
 });
 
+export const useBoardStore = defineStore({
+  id: "board-store",
+  state: () => ({
+      isDrawing: false,
+  }),
+
+  actions: {
+      setDrawing(state: boolean) {
+          this.isDrawing = state;
+        },
+  }
+});
 export {pinia};

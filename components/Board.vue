@@ -7,9 +7,10 @@
             @mousedown="handleMouseDown"
             @mouseup="handleMouseUp"
             @mouseenter="handleMouseEnter"
+            @mouseleave="handleMouseLeave"
             width="1000 " height="500 "
             class="bg-board"></canvas>
-        
+        <button @click="clear">clear</button>
     </div>
 </template>
 
@@ -17,9 +18,10 @@
 import { ref, onMounted, watchEffect } from 'vue';
 import { drawLine, drawTriangle } from '../assets/shape.js';
 import io from 'socket.io-client';
-import { useToolStore } from '../stores/store.ts';
+import { useToolStore, useBoardStore } from '../stores/store.ts';
 
 const toolStore = useToolStore();
+const boardStore = useBoardStore();
 
 const timeout = ref();
 
@@ -112,8 +114,13 @@ function handleMouseDown(event) {
 }
 
 function handleMouseEnter(event) {
+    isDrawing.value = boardStore.isDrawing;
     const { offsetX, offsetY } = event;
     context.value.moveTo( offsetX, offsetY )
+}
+
+function handleMouseLeave() {
+    boardStore.setDrawing(isDrawing.value);
 }
 
 function handleMouseMove(event) {
@@ -173,6 +180,12 @@ function handleMouseUp() {
         context.value.putImageData(redoAction, 0, 0); // Redraw the last drawing
     }
 };*/
+
+function clear() {
+    context.value.clearRect(0, 0, canvasWidth, canvasHeight);
+    const ImageData = canvas.value.toDataURL("image/png");
+    socket.emit('canvas-data', ImageData);
+}
 </script>
   
 <style>

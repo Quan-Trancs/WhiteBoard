@@ -8,11 +8,11 @@
             @mouseup="handleMouseUp"
             @mouseenter="handleMouseEnter"
             @mouseleave="handleMouseLeave"
-            width="1000 " height="500 "
+            width="1114" height="645"
             class="bg-board"></canvas>
         <button @click="clear">clear</button>
     </div>
-</template>
+</template>vw
 
 <script setup>
 import { ref, onMounted, watchEffect } from 'vue';
@@ -36,8 +36,8 @@ const undoHistory = ref([]);
 const beginPointX = ref(0);
 const beginPointY = ref(0);
 
-const canvasWidth = 1000;
-const canvasHeight = 500;
+const canvasWidth = 1114;
+const canvasHeight = 645;
 
 const color = ref();
 const shape = ref('pencil');
@@ -65,7 +65,7 @@ onMounted(() => {
 
 setTimeout(async() => {
     socket.emit('canvas-init');   
-}, 1000);
+}, 1500);
 
 function createElement(x1, y1, x2, y2, type) {
     switch (type) {
@@ -189,14 +189,8 @@ function clear() {
 </script>
   
 <style>
-canvas {
-    border: 5px solid #000;
-    border-radius: 25px;
-}
 .bg-board {
-    background-color: whitesmoke;
-    background-repeat: no-repeat;
-    background-size: 1000px 500px;
+    background-color: white;
 }
 
 .loading-screen {

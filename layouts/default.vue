@@ -1,67 +1,21 @@
 <template>
     <div ref="container" 
     @mouseup="handleMouseUp"
-    class="h-screen w-screen bg-wall">
-        <input type="text" v-model="inputValue" @input="handleInput" />
-        <div ref="boardContainer" class="flex h-[540px] w-[1200px] justify-center items-center">
-            <Board :color="color" :size="size" :shape="shape"/>
+    class="h-screen w-screen bg-wall flex">
+        <div ref="toolContainer" class="">
+            <Paints class="absolute top-0 left-4 w-20 ml-1 rounded-lg"/>
         </div>
-        <div ref="toolBox" class="flex">
-            <div ref="colorPicker">color: 
-                <input type="color" v-model="color" @change="setColor"/>
-            </div>
-            <div ref="sizePicker" class="ml-5">size: 
-                <select v-model="size" @change="setSize">
-                    <option default>5</option>
-                    <option>10</option>
-                    <option>15</option>
-                    <option>20</option>
-                    <option>25</option>
-                    <option>30</option> 
-                </select>
-            </div>
-            <div ref="shapePicker" class="ml-5">shape: 
-                <select v-model="shape" @change="setShape">
-                    <option default>pencil</option>
-                    <option>line</option>
-                    <option>rectangle</option>
-                    <option>isosceles triangle</option>
-                </select>
-            </div>
+        <div ref="boardContainer" class="flex h-[100%] w-[100%] justify-center items-center">
+            <Board/>
         </div>
     </div>
 </template>
 
 <script setup>
 import {ref} from 'vue';
-import { useToolStore, useBoardStore } from '../stores/store.ts';
+import { useBoardStore } from '../stores/store.ts';
 
-const inputValue = ref('');
-
-const handleInput = () => {
-  // Access the updated value through inputValue
-  console.log(shape.value);
-};
-
-const toolStore = useToolStore();
 const boardStore = useBoardStore();
-
-const color = ref('#000000');
-const shape = ref('pencil');
-const size = ref(5);
-
-function setColor() {
-    toolStore.setColor(color.value);
-}
-
-function setShape() {
-    console.log(shape.value);
-    toolStore.setShape(shape.value);
-}
-
-function setSize() {
-    toolStore.setSize(size.value);
-}
 
 function handleMouseUp() {
     boardStore.setDrawing(false);

@@ -1,29 +1,42 @@
 <template>
-    <div ref="toolBox" class="sidebar">
-            <div ref="colorPicker">
-                <input type="color" v-model="color" @change="setColor" class="w-8 h-8 bg-transparent">
+    <div ref="toolBox" class="sidebar sticky left-0 rounded-2xl glass">
+            <div ref="file" class="flex my-1 w-full justify-center">
+                <Icon name="teenyicons:book-outline" color="white" size="1rem" class="my-3"/>
             </div>
-            <div ref="sizePicker" class="">
-                <select v-model="size" @change="setSize" class="appearance-none text-white bg-transparent text-2xl text-center">
-                    <option default value="5" class="text-black">5px</option>
-                    <option value="10" class="text-black">10px</option>
-                    <option value="15" class="text-black">15px</option>
-                    <option value="20" class="text-black">20px</option>
-                    <option value="25" class="text-black">25px</option>
-                    <option value="30" class="text-black">30px</option> 
-                </select>
-            </div>
-            <div v-if="shape !== 'pencil'" class="py-3 hover:bg-gray-950" @click="setShape('pencil')"><img src="../public/pencil.png" alt="pencil"/></div>
-            <div v-if="shape === 'pencil'" class="py-3 bg-gray-950" @click="setShape('pencil')"><img src="../public/pencil.png" alt="pencil"/></div>
-            <div class="dropdown">
-                <div v-if="shape === 'pencil'" class="px-1 py-4 text-white hover:bg-gray-950"><img src="../public/line.png" alt="line"/></div>
-                <div v-if="shape === 'line'" class="px-1 py-4 text-white bg-gray-950"><img src="../public/line.png" alt="line"/></div>
-                <div v-if="shape === 'rectangle'" class="px-1 py-4 text-white bg-gray-950"><img src="../public/rectangle.png" alt="rectangle" class="object-cover"/></div>
+            <div ref="shape" class="dropdown my-1 w-full">
+                <div v-if="tool === 'pencil'" class="w-fill text-white hover:bg-sky-600 flex justify-center"><Icon name="material-symbols:shape-line-outline" color="white" size="1rem"  class="my-3"/></div>
+                <div v-if="tool !== 'pencil'" class="w-fill text-white bg-sky-600 flex justify-center"><Icon name="material-symbols:shape-line-outline" color="white" size="1rem" class="my-3"/></div>
                 <div class="dropdown-content">
                     <a href="#" class="block p-2 hover:bg-gray-200" @click="setShape('line')"><img src="../public/line.png" alt="line" class="object-cover w-20"/></a>
                     <a href="#" class="block p-2 hover:bg-gray-200" @click="setShape('rectangle')"><img src="../public/rectangle.png" alt="rectangle" class="object-cover w-20"/></a>
                     <a href="#" class="block p-2 hover:bg-gray-200">Option 3</a>
                 </div>
+            </div>
+            <div ref="upload" class="flex my-1 w-full justify-center">
+                <Icon name="simple-line-icons:cloud-upload" color="white" size="1rem" class="my-3"/>
+            </div>
+            <div ref="text" class="flex my-1 w-full justify-center">
+                <Icon name="cil:text" color="white" size="1rem"  class="my-3"/>
+            </div>
+            <div ref="text" class="dropdown my-1 w-full">
+                <div v-if="tool !== 'text'" class="w-fill text-white hover:bg-sky-600 flex justify-center" @click="setShape('text')"><Icon name="cil:text" color="white" size="1rem"  class="my-3"/></div>
+                <div v-if="tool === 'text'" class="w-fill text-white bg-sky-600 flex justify-center"><Icon name="cil:text" color="white" size="1rem" class="my-3"/></div>
+                <div class="dropdown-content">
+                    <a href="#" class="block p-2 hover:bg-gray-200" @click="setShape('text')"><img src="../public/line.png" alt="line" class="object-cover w-20"/></a>
+                    <a href="#" class="block p-2 hover:bg-gray-200" @click="setShape('text')"><img src="../public/rectangle.png" alt="rectangle" class="object-cover w-20"/></a>
+                    <a href="#" class="block p-2 hover:bg-gray-200">Option 3</a>
+                </div>
+            </div>
+            <div ref="paint" class="dropdown my-1 w-full">
+                <div v-if="tool !== 'pencil'" class="w-fill text-white hover:bg-sky-600 flex justify-center" @click="setShape('pencil')"><Icon name="la:paint-brush" color="white" size="1rem"  class="my-3"/></div>
+                <div v-if="tool === 'pencil'" class="w-fill text-white bg-sky-600 flex justify-center"><Icon name="la:paint-brush" color="white" size="1rem" class="my-3"/></div>
+            </div>
+            <div ref="eraser" class="dropdown my-1 w-full">
+                <div v-if="tool !== 'eraser'" class="w-fill text-white hover:bg-sky-600 flex justify-center" @click="setShape('eraser')"><Icon name="tabler:eraser" color="white" size="1rem"  class="my-3"/></div>
+                <div v-if="tool === 'eraser'" class="w-fill text-white bg-sky-600 flex justify-center"><Icon name="tabler:eraser" color="white" size="1rem" class="my-3"/></div>
+            </div>
+            <div ref="delete" class="flex my-1 w-full justify-center">
+                <Icon name="material-symbols:delete-outline" color="white" size="1rem"  class="my-3" @click="clear"/>
             </div>
         </div>
 </template>
@@ -35,17 +48,18 @@ import { useToolStore } from '../stores/store.ts';
 const toolStore = useToolStore();
 
 const color = ref('#000000');
-const shape = ref('pencil');
 const size = ref(5);
+
+const tool = ref('pencil');
 
 function setColor() {
     toolStore.setColor(color.value);
 }
 
 function setShape(input) {
-    shape.value = input;
-    console.log(shape.value);
-    toolStore.setShape(shape.value);
+    tool.value = input;
+    console.log(tool.value);
+    toolStore.setShape(tool.value);
 }
 
 function setSize() {
@@ -53,27 +67,36 @@ function setSize() {
 }
 </script>
 
-<style>
+<style scoped>
 .sidebar {
-    width: 6%;
-    min-height: 40%;
-    background-color: #2a2b33;
+    width: 50px;
+    min-height: 100%;
+    background-color: #0ea5e9;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-around;
 }
 
 .dropdown {
     position: relative;
     display: inline-block;
+    align-items: center;
 }
 
-.dropdown-content {
+.dropdown .tool {
     display: none;
     position: absolute;
     background-color: #fff;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    top: 0;
+    left: 100%;
+}
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #0ea5e9;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
     top: 0;
     left: 100%;
 }
@@ -91,5 +114,10 @@ function setSize() {
     100% {
     height: 120px;
     }
+}
+
+.glass {
+    backdrop-filter: blur(4px);
+    bg-opacity: 1;
 }
 </style>

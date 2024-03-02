@@ -8,11 +8,14 @@
             @mouseup="handleMouseUp"
             @mouseenter="handleMouseEnter"
             @mouseleave="handleMouseLeave"
-            width="1114" height="645"
-            class="bg-board"></canvas>
-        <button @click="clear">clear</button>
+            @keydown="handleKeyDown"
+
+            tabindex='1' 
+            width="1240" height="610"
+            class="bg-board rounded-xl"></canvas>
+            <button class="fixed bottom-6 right-5 bg-sky-500 rounded-lg hover:bg-sky-600" @click="clear"><Icon name="material-symbols:delete-outline" color="#e2e8f0" size="2rem" class=""/></button>
     </div>
-</template>vw
+</template>
 
 <script setup>
 import { ref, onMounted, watchEffect } from 'vue';
@@ -26,6 +29,8 @@ const boardStore = useBoardStore();
 const timeout = ref();
 
 const isDrawing = ref(false);
+const isWriting = ref(false);
+
 const canvas = ref(null);
 const context = ref(null);
 
@@ -36,10 +41,15 @@ const undoHistory = ref([]);
 const beginPointX = ref(0);
 const beginPointY = ref(0);
 
-const canvasWidth = 1114;
-const canvasHeight = 645;
+const writingPointX = ref(0);
+const writingPointY = ref(0);
 
-const color = ref();
+const canvasWidth = 1240;
+const canvasHeight = 610;
+
+const writingText = ref("");
+
+const color = ref('black');
 const shape = ref('pencil');
 const size = ref(5);
 
@@ -98,11 +108,30 @@ function createElement(x1, y1, x2, y2, type) {
     }
 };
 
-function handleMouseDown(event) {
+async function handleMouseDown(event) {
     color.value = toolStore.color;
     shape.value = toolStore.shape;
     size.value = toolStore.size;
 
+    if (shape.value == 'text') {
+        const { offsetX, offsetY } = event;
+        writingPointX.value = offsetX;
+        writingPointY.value =offsetY;
+        if (isWriting.value == true) {
+            context.value.clearRect(0, 0, canvasWidth, canvasHeight);
+            undoHistory.value.forEach(data => context.value.putImageData(data, 0, 0));
+            context.value.fillText(writingText.value, writingPointX.value, writingPointY.value);
+            return;
+        }
+        isWriting.value = true;
+        context.value.strokeStyle = color.value;
+        context.value.font = "48px serif";
+        return;
+    }
+
+    isWriting.value = false;
+    writingText.value = "";
+    console.log (isWriting.value);
     isDrawing.value = true;
     const { offsetX, offsetY } = event;
     context.value.strokeStyle = color.value;
@@ -110,7 +139,6 @@ function handleMouseDown(event) {
     context.value.beginPath(offsetX, offsetY);
     beginPointX.value = offsetX;
     beginPointY.value = offsetY;
-    console.log(shape.value);
 }
 
 function handleMouseEnter(event) {
@@ -133,6 +161,12 @@ function handleMouseMove(event) {
             context.value.lineTo(offsetX, offsetY);
             context.value.stroke();
             break;
+        case 'eraser':
+            context.value.strokeStyle = "white";
+            //console.log('eraser')
+            context.value.lineTo(offsetX, offsetY);
+            context.value.stroke();
+            break;
         default:
             context.value.clearRect(0, 0, canvasWidth, canvasHeight);
             undoHistory.value.forEach(data => context.value.putImageData(data, 0, 0));
@@ -147,9 +181,47 @@ function handleMouseMove(event) {
 }
 
 function handleMouseUp() {
-    isDrawing.value = false;
-    const mouseUpImageData = context.value.getImageData(0, 0, canvasWidth, canvasHeight);
-    undoHistory.value.push(mouseUpImageData);
+    if (isWriting.value == false) {
+        isDrawing.value = false;
+        const mouseUpImageData = context.value.getImageData(0, 0, canvasWidth, canvasHeight);
+        undoHistory.value.push(mouseUpImageData);
+        const ImageData = canvas.value.toDataURL("image/png");
+        socket.emit('canvas-data', ImageData);
+    }
+}
+
+function handleKeyDown(event) {
+    const keyCode = event.keyCode || event.which;
+    const key = event.key;
+    if (isWriting.value == true) {    
+        if (key == 'Enter') {
+            handleEnterPressed();
+        } 
+        else {
+            if (keyCode == 46 || keyCode == 8) {
+                writingText.value = writingText.value.slice(0, -1);                
+            } else if (
+            (keyCode >= 48 && keyCode <= 90) ||    // Alphanumeric keys
+            (keyCode >= 96 && keyCode <= 111) ||   // Numpad keys
+            (keyCode >= 186 && keyCode <= 192) ||  // Special characters on US keyboards
+            (keyCode >= 219 && keyCode <= 222)     // Special characters on US keyboards
+            ) {
+                writingText.value += key
+            }
+            context.value.clearRect(0, 0, canvasWidth, canvasHeight);
+            undoHistory.value.forEach(data => context.value.putImageData(data, 0, 0));
+            context.value.fillText(writingText.value, writingPointX.value, writingPointY.value);
+        }
+    }
+}
+
+function handleEnterPressed() {
+    isWriting.value = false;
+    writingText.value = "";
+    const enterPressedImageData = context.value.getImageData(0, 0, canvasWidth, canvasHeight);
+    undoHistory.value.push(enterPressedImageData);
+    const ImageData = canvas.value.toDataURL("image/png");
+    socket.emit('canvas-data', ImageData);
 }
 
 /*function handleKeyDown(event) {

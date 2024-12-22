@@ -49,9 +49,10 @@ const canvasHeight = 610;
 
 const writingText = ref("");
 
-const color = ref('black');
+const color = ref('#FF0000');
 const shape = ref('pencil');
 const size = ref(5);
+const font = ref('arial');
 
 const socket = io('http://localhost:5000');
 
@@ -112,6 +113,7 @@ async function handleMouseDown(event) {
     color.value = toolStore.color;
     shape.value = toolStore.shape;
     size.value = toolStore.size;
+    font.value = toolStore.font;
 
     if (shape.value == 'text') {
         const { offsetX, offsetY } = event;
@@ -125,7 +127,8 @@ async function handleMouseDown(event) {
         }
         isWriting.value = true;
         context.value.strokeStyle = color.value;
-        context.value.font = "48px serif";
+        context.value.fillStyle = color.value;
+        context.value.font = `${size.value}px ${font.value}`;
         return;
     }
 

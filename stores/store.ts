@@ -5,9 +5,13 @@ const pinia = createPinia();
 export const useToolStore = defineStore({
     id: "tools-store",
     state: () => ({
-        color: '#000000',
+        color: '#FF0000',
         shape: 'pencil',
         size: 5,
+        font: 'Times New Roman',
+        bold: false,
+        italic: false,
+        underline: false,
     }),
 
     actions: {
@@ -20,6 +24,18 @@ export const useToolStore = defineStore({
           setSize(size: number) {
             this.size = size;
           },
+          setFont(font: string) {
+            this.font = font;
+          },
+          setFontStyleBold(value: boolean) {
+            this.bold = value;
+          },
+          setFontStyleItalic(value: boolean) {
+            this.italic = value;
+          },
+          setFontStyleUnderline(value: boolean) {
+            this.underline = value;
+          }
     }
 });
 

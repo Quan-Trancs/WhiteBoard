@@ -4,6 +4,7 @@ export default defineNuxtConfig({
     "@": resolve(__dirname, "/")
   },
   css: ["~/assets/main.css"],
+
   postcss: {
     plugins: {
       tailwindcss: {},
@@ -14,6 +15,10 @@ export default defineNuxtConfig({
     // ...
     '@pinia/nuxt',
     'nuxt-icon',
+    'nuxt-primevue',
   ],
+  primevue: {
+    /* Options */
+  },
   devtools: { enabled: true }
 })

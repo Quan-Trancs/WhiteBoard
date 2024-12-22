@@ -2,6 +2,17 @@
     <div ref="container" 
     @mouseup="handleMouseUp"
     class="h-screen w-screen bg-wall flex">
+    <div ref="toolContainer" class="z-1 absolute top-0 left-1">
+            <div class="ml-20">
+
+            </div>
+            <div class="properties-navbar-container">
+                <transition name="properties-navbar">
+                    <Property class="w-screen"/>  
+                </transition>
+            </div>
+        </div>
+
         <div ref="toolContainer" class="z-1 absolute top-0 left-1">
             <div class="ml-2">
                 <button class="my-3 w-10 h-10 text-white bg-sky-400 hover:bg-sky-500 focus:ring-4 focus:ring-sky-500 font-medium rounded-full text-sm dark:bg-sky-600 dark:hover:bg--sky-600 focus:outline-none dark:focus:ring-sky-600" type="button" data-drawer-target="drawer-navigation" data-drawer-show="drawer-navigation" aria-controls="drawer-navigation"
